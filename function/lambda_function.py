@@ -1,5 +1,6 @@
 from github import Github
 
+
 def lambda_handler(event, context):
     """Lambda function wrapper
     Args:
@@ -8,12 +9,20 @@ def lambda_handler(event, context):
     Returns:
         string: greeting response
     """
-    print('Starting functions\n---------------------------------------------')
+    print("Starting functions\n---------------------------------------------")
+
+
+
+
+
+
+    def something(myvar: str):
+        print(myvar)
+
+    something("hey")
 
     if event["input"] == "Hello":
-
         return "World"
 
     else:
-
         raise
