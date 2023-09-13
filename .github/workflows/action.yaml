@@ -9,8 +9,29 @@ on:
 
 jobs:
 
+  lint:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install linting libraries
+        run: |
+            cd function
+            pip install flake8
+      - name: Lint with flake8
+        run: |
+            # Select identifies which errors should cause the job to fail
+            flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+            # The exit zero flag will show errors as warnings and not fail the run
+            flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
   build:
     runs-on: ubuntu-latest
+    needs: lint
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -48,7 +69,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Upload to S3
-        run: aws s3 cp ${{ github.sha }}.zip s3://ihtest0001x/${{ github.repository }}/${{ github.sha }}.zip
+        run: aws s3 cp ${{ github.sha }}.zip s3://ihtest0001x/${{ github.sha }}.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -65,7 +86,7 @@ jobs:
             aws lambda update-function-code \
               --function-name mytest \
               --s3-bucket ihtest0001x \
-              --s3-key ${{ github.repository }}/${{ github.sha }}.zip \
+              --s3-key ${{ github.sha }}.zip \
               --publish
 
               
