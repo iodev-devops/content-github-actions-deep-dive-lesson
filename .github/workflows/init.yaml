@@ -1,12 +1,34 @@
-# This is a placeholder so actions won't default to a getting started page
+# Initial workflow for Imran H
 
-name: Placeholder
+name: Deploy my lambda function
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  init:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Setup ma Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install Python libbys
+        run: |
+            cd function
+            python -m pip install --upgrade pip
+            if [ -f requirements.txt ]; then pip install -r requirements.txt -t .; fi
+      - name: Create ma Zip bundle
+        run: |
+            cd function
+            zip -r ../${{ github.sha }}.zip .
+      - name: Archive artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: zipped-bundle
+          path: ${{ github.sha }}.zip
+
